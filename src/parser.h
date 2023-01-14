@@ -112,6 +112,9 @@ typedef enum {
   YP_CONTEXT_PARENS,   // a parenthesized expression
   YP_CONTEXT_ENSURE,   // an ensure statement
   YP_CONTEXT_RESCUE,   // a rescue statement
+  YP_CONTEXT_LAMBDA_BRACES, // a lambda expression with braces
+  YP_CONTEXT_LAMBDA_DO_END, // a lambda expression with do..end
+
 } yp_context_t;
 
 // This is a node in a linked list of contexts.
