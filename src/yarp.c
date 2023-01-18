@@ -2240,6 +2240,34 @@ parse_parameters(yp_parser_t *parser) {
   return params;
 }
 
+// Parse a list of parameters and local on a block definition.
+static yp_node_t *
+parse_block_parameters(yp_parser_t *parser) {
+  yp_node_t *block_params = parse_parameters(parser);
+
+  yp_node_t *parameters = yp_node_block_var_node_create(parser, block_params);
+
+  if (accept(parser, YP_TOKEN_SEMICOLON)) {
+    bool parsing = true;
+
+    while (parsing) {
+      if (accept(parser, YP_TOKEN_IDENTIFIER)) {
+        yp_token_t name = parser->previous;
+        yp_token_list_append(&parser->current_scope->as.scope.locals, &name);
+        yp_token_list_append(&parameters->as.block_var_node.locals, &name);
+
+        if (!accept(parser, YP_TOKEN_COMMA)) {
+          parsing = false;
+        }
+      } else {
+        parsing = false;
+      }
+    }
+  }
+
+  return parameters;
+}
+
 static inline yp_node_t *
 parse_conditional(yp_parser_t *parser, yp_context_t context) {
   yp_token_t keyword = parser->previous;
@@ -3442,27 +3470,8 @@ parse_expression_prefix(yp_parser_t *parser) {
         yp_node_t *parent_scope = parser->current_scope;
         yp_node_t *scope = yp_node_scope_create(parser);
         parser->current_scope = scope;
-        yp_node_t *block_params = parse_parameters(parser);
 
-        parameters = yp_node_block_var_node_create(parser, block_params);
-
-        if (accept(parser, YP_TOKEN_SEMICOLON)) {
-          bool parsing = true;
-
-          while (parsing) {
-            if (accept(parser, YP_TOKEN_IDENTIFIER)) {
-              yp_token_t name = parser->previous;
-              yp_token_list_append(&parser->current_scope->as.scope.locals, &name);
-              yp_token_list_append(&parameters->as.block_var_node.locals, &name);
-
-              if (!accept(parser, YP_TOKEN_COMMA)) {
-                parsing = false;
-              }
-            } else {
-              parsing = false;
-            }
-          }
-        }
+        parameters = parse_block_parameters(parser);
 
         expect(parser, YP_TOKEN_PARENTHESIS_RIGHT, "Expected ')' after left parenthesis.");
 
