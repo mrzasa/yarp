@@ -2895,6 +2895,7 @@ class ParseTest < Test::Unit::TestCase
     assert_serializes expected, source
 
     YARP.lex_ripper(source).zip(YARP.lex_compat(source)).each do |(ripper, yarp)|
+      ripper[1] = :on_lbrace if ripper[1] == :on_tlambeg
       assert_equal ripper[0...-1], yarp[0...-1]
     end
   end

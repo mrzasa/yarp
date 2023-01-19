@@ -852,7 +852,6 @@ lex_token_type(yp_parser_t *parser) {
 
         // {
         case '{':
-          if (parser->previous.type == YP_TOKEN_MINUS_GREATER) return YP_TOKEN_LAMBDA_BEGIN;
           return YP_TOKEN_BRACE_LEFT;
 
         // }
@@ -3489,7 +3488,7 @@ parse_expression_prefix(yp_parser_t *parser) {
       parser->current_scope = parent_scope;
 
       yp_node_t *body = NULL;
-      if (accept_any(parser, 2, YP_TOKEN_LAMBDA_BEGIN, YP_TOKEN_BRACE_LEFT)) {
+      if (accept(parser, YP_TOKEN_BRACE_LEFT)) {
         body = parse_statements(parser, YP_CONTEXT_LAMBDA_BRACES);
         expect(parser, YP_TOKEN_BRACE_RIGHT, "Expecting '}' to close lambda block.");
       } else if (accept(parser, YP_TOKEN_KEYWORD_DO)) {
